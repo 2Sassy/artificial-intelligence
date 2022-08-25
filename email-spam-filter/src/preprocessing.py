@@ -15,8 +15,8 @@ import string
 
 TRAINSET_PATH = '../data/train/'
 TESTSET_PATH = '../data/test/'
-LINGSPAM_TRAIN_CSV_PATH = TRAINSET_PATH + 'lingspam_train.csv'
-LINGSPAM_TEST_CSV_PATH = TESTSET_PATH + 'lingspam_test.csv'
+LINGSPAM_TRAIN_CSV_PATH = f'{TRAINSET_PATH}lingspam_train.csv'
+LINGSPAM_TEST_CSV_PATH = f'{TESTSET_PATH}lingspam_test.csv'
 
 
 def generate_trainset(input_dir, output_path):
@@ -29,28 +29,26 @@ def generate_trainset(input_dir, output_path):
             if not file.endswith('.txt'):
                 continue
 
-            d = {}
             file_name = file.replace('.txt', '')
             file_path = os.path.join(root, file)
-            
+
             with codecs.open(file_path, mode='r', encoding='utf8', errors='ignore') as f:
-                line_counter = 0
-                for line in f.readlines():
+                for line_counter, line in enumerate(f.readlines()):
                     line = line.strip()
-                    if line_counter == 0:   # subject
+                    if line_counter == 0:
                         subject = line.replace('Subject:', '').strip()
-                    if line_counter == 2:
+                    elif line_counter == 2:
                         email = line
-                        # email = [word for word in email if word not in string.punctuation]
-                        # email = [word for word in email if len(word) > 1]
-                    line_counter += 1
-            d['email_subject'] = subject
-            d['email_body'] = email
-            d['part_name'] = part_name
-            d['file_name'] = file_name
-            d['is_spam'] = 1 if file_name.startswith('spmsg') else 0
+            d = {
+                'email_subject': subject,
+                'email_body': email,
+                'part_name': part_name,
+                'file_name': file_name,
+                'is_spam': 1 if file_name.startswith('spmsg') else 0,
+            }
+
             l.append(d)
-    
+
     with codecs.open(output_path, mode='w', encoding='utf8', errors='ignore') as out_file:
         writer = csv.DictWriter(out_file, l[0].keys())
         writer.writeheader()

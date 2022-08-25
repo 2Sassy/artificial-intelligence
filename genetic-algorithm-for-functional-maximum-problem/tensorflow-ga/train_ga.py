@@ -93,14 +93,14 @@ for i in range(generations):
     mutation_prob_mat = np.random.uniform(size=[num_children, features])
     mutation_values = np.random.normal(size=[num_children, features])
     mutation_values[mutation_prob_mat >= mutation] = 0
-    
+
     # run GA step
     feed_dict = {truth_ph: truth.reshape([1, features]),
                  crossover_mat_ph: crossover_mat,
                  mutation_val_ph: mutation_values}
     step.run(feed_dict, session=sess)
     best_individual_val = sess.run(best_individual, feed_dict=feed_dict)
-    
+
     best_fit = sess.run(best_val, feed_dict = feed_dict)
     print('Generation: {}, Best Fitness (lowest MSE): {:.2}'.format(i, -best_fit))
 
