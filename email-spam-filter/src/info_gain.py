@@ -38,7 +38,7 @@ print(lingspam_test_df)
 trainset_size = lingspam_train_df.shape[0]
 testset_size = lingspam_test_df.shape[0]
 print("\nTrainset size: " + str(trainset_size))
-print("Testset size: " + str(testset_size))
+print(f"Testset size: {str(testset_size)}")
 
 
 # make dictionary
@@ -58,7 +58,7 @@ unique_num = len(dictionary)
 total_num = sum(dictionary.values())
 
 print("\nThe number of unique words in lingspam trainset: " + str(unique_num))
-print("The total times they appeared: " + str(total_num))
+print(f"The total times they appeared: {str(total_num)}")
 
 print("The 20 most common words in trainset:")
 print(*dictionary.most_common(20), sep='\n')
@@ -78,29 +78,23 @@ for index, row in lingspam_train_df.iterrows():
   else:
     total_legit_emails += 1
 
-print("total legit email number = {}".format(total_legit_emails))
-print("total spam email number = {}".format(total_spam_emails))
+print(f"total legit email number = {total_legit_emails}")
+print(f"total spam email number = {total_spam_emails}")
 
 p = total_legit_emails / (total_spam_emails + total_legit_emails)
-print("p = {}".format(p))
+print(f"p = {p}")
 
 h_c = -1 * p * math.log(p, 2) - (1 - p) * math.log(1 - p, 2)
-print("H(C) = {}".format(h_c))
+print(f"H(C) = {h_c}")
 
 
 def count_legit_emails_with_word(word):
-  num_legit_emails_with_word = 0
-  for index, row in lingspam_train_df.iterrows():
-    if row['is_spam'] == 0 and word in row['email_body'].split(' '):
-      num_legit_emails_with_word += 1
-  return num_legit_emails_with_word
+  return sum(row['is_spam'] == 0 and word in row['email_body'].split(' ')
+             for index, row in lingspam_train_df.iterrows())
       
 def count_spam_emails_with_word(word):
-  num_spam_emails_with_word = 0
-  for index, row in lingspam_train_df.iterrows():
-    if row['is_spam'] == 1 and word in row['email_body'].split(' '):
-      num_spam_emails_with_word += 1
-  return num_spam_emails_with_word
+  return sum(row['is_spam'] == 1 and word in row['email_body'].split(' ')
+             for index, row in lingspam_train_df.iterrows())
 
 def h_legit_word_not_present(word):
   num_legit_emails_with_word = count_legit_emails_with_word(word)
@@ -124,20 +118,16 @@ def h_spam_word_is_present(word):
 
 def info_gain(word):
   h_c_x = -1 * (h_legit_word_not_present(word) + h_spam_word_not_present(word) + h_legit_word_is_present(word) + h_spam_word_is_present(word))
-  ig = h_c - h_c_x
-  return ig
+  return h_c - h_c_x
 
 
 ig_l = []
 for tup in dictionary.most_common(): 
-    ig_d = {}
-    word = tup[0]
-    freq = tup[1]
-    ig_d['word'] = word
-    ig_d['freq'] = freq
-    ig_d['ig'] = info_gain(word)
-    ig_l.append(ig_d)
-    print("word: {}, ig: {}".format(word, ig))
+  word = tup[0]
+  freq = tup[1]
+  ig_d = {'word': word, 'freq': freq, 'ig': info_gain(word)}
+  ig_l.append(ig_d)
+  print(f"word: {word}, ig: {ig}")
 
 
 ig_path = '../data/ig.csv'
